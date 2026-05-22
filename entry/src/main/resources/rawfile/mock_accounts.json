@@ -1,0 +1,20 @@
+{
+  "sections": [
+    {
+      "id": "local",
+      "title": "Local",
+      "rows": [
+        { "id": "local", "label": "Local", "subtitle": "On this device", "iconSeed": "L" }
+      ]
+    },
+    {
+      "id": "selfhosted",
+      "title": "Self-hosted",
+      "rows": [
+        { "id": "freshrss", "label": "FreshRSS",      "subtitle": "freshrss.org",                "iconSeed": "F" },
+        { "id": "greader",  "label": "Google Reader", "subtitle": "Google Reader API",           "iconSeed": "G" },
+        { "id": "fever",    "label": "Fever",         "subtitle": "Deprecated. Not recommended.", "iconSeed": "V" }
+      ]
+    }
+  ]
+}

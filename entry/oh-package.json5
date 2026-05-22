@@ -1,0 +1,9 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "ReadYou RSS reader for HarmonyOS",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {}
+}

@@ -1,0 +1,10 @@
+{
+  "swatches": [
+    { "id": "red",    "color": "#D32F2F" },
+    { "id": "orange", "color": "#F57C00" },
+    { "id": "yellow", "color": "#FBC02D" },
+    { "id": "green",  "color": "#388E3C" },
+    { "id": "blue",   "color": "#1976D2" },
+    { "id": "purple", "color": "#7B1FA2" }
+  ]
+}
