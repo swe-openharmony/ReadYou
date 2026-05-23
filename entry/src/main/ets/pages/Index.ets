@@ -1,19 +1,4 @@
-// ====================================================================
-// Page: Index (ReadYou L0 Home — Feeds main)
-// Android baseline: D:/OH-Appforge/_doc_screenshots_v2/ReadYou/L0_home.png
-// Layout contract:
-//   - Top action row: gear ⚙ (left) + add ＋ (right)
-//   - Large title "Read You"
-//   - Filter chip card "Unread" / "10 unread items" / "›"
-//   - Section header "Feeds" + expand-collapse ⌃⌄
-//   - Feed group card "Default" with expanded child:
-//       favicon + "ReadYou Releases" + count "10"
-//   - Bottom nav 3 tabs: ★ (Starred) | ● (Articles, active) | ☰ (Feeds)
-// Navigation:
-//   - Gear ⚙ → AccountsPage   (account/settings hub entry)
-//   - Add ＋ → ColorStylePage  (style/personalization entry)
-//   - "ReadYou Releases" row → FeedArticlesPage
-// ====================================================================
+// Page: Index
 
 import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';

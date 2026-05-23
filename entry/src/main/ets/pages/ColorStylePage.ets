@@ -1,25 +1,4 @@
-// ====================================================================
 // Page: ColorStylePage
-// App: ReadYou
-// Reference samples:
-//   - D:/OH-Appforge/_hmos_samples/ComponentUXExamples (Slider, Toggle, choice chips)
-//   - D:/OH-Appforge/spec_to_app/harmony/opus-4.7/Catima/entry/src/main/ets/pages/
-//     BarcodeSelectorPage.ets (proven layout pattern)
-// Android baseline screenshot:
-//   - D:/OH-Appforge/_doc_screenshots_v2/ReadYou/L2_2_color_style.png
-// Android view tree:
-//   - D:/OH-Appforge/_doc_screenshots_v2/ReadYou/L2_2_color_style.xml
-// Layout contract (from Android view.xml):
-//   - Top app bar: Back button (no inline title)
-//   - Heading "Color & style"
-//   - Theme preview card (Material You sample)
-//   - Two segmented chips: "Wallpaper colors" / "Basic colors"
-//   - Horizontal palette swatches (Material You presets)
-//   - Section "Appearance":
-//       Dark theme / Use device theme (switch)
-//       Basic fonts / Google Sans Flex (tappable row)
-// Status: ALIGNED to Android baseline.
-// ====================================================================
 
 import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';

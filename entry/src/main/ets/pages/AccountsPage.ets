@@ -1,24 +1,4 @@
-// ====================================================================
 // Page: AccountsPage
-// App: ReadYou
-// Reference samples:
-//   - D:/OH-Appforge/_hmos_samples/ComponentUXExamples (List/ListItem)
-//   - D:/OH-Appforge/spec_to_app/harmony/opus-4.7/Catima/entry/src/main/ets/pages/
-//     BarcodeSelectorPage.ets (proven layout pattern)
-// Android baseline screenshot:
-//   - D:/OH-Appforge/_doc_screenshots_v2/ReadYou/L2_1_accounts.png
-// Android view tree:
-//   - D:/OH-Appforge/_doc_screenshots_v2/ReadYou/L2_1_accounts.xml
-// Layout contract (from Android view.xml):
-//   - Top app bar: Back button (no inline title)
-//   - Heading "Add accounts" (display title beneath the app bar)
-//   - Section "Local" header + row "Local / On this device"
-//   - Section "Self-hosted" header + rows:
-//       FreshRSS / freshrss.org
-//       Google Reader / Google Reader API
-//       Fever / Deprecated. Not recommended.
-// Status: ALIGNED to Android baseline.
-// ====================================================================
 
 import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';

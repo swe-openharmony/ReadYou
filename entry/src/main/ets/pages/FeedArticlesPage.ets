@@ -1,16 +1,4 @@
-// ====================================================================
-// Page: FeedArticlesPage (Unread)
-// App: ReadYou
-// Android baseline:
-//   - D:/OH-Appforge/_doc_screenshots_v2/ReadYou/L1_flow_page_unread.png
-//   - D:/OH-Appforge/_doc_screenshots_v2/ReadYou/L1_flow_page_unread.xml
-// Layout contract:
-//   - Top bar: back (Text '<-') + Mark all as read (Text checkmark) + Search
-//   - Big "Unread" headline below the bar
-//   - Grouped list with sticky date headers ("Sunday, February 1, 2026" etc.)
-//   - Each row: feed name + time (right) + title + summary + small thumbnail (right)
-//   - Bottom segmented row: Starred / Unread (selected) / All
-// ====================================================================
+// Page: FeedArticlesPage
 
 import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
