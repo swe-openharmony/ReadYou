@@ -3,6 +3,7 @@
                 "pages/Index",
                 "pages/FeedArticlesPage",
                 "pages/AccountsPage",
-                "pages/ColorStylePage"
+                "pages/ColorStylePage",
+                "pages/ReaderPage"
             ]
 }
