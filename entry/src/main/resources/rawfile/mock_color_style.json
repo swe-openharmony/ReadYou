@@ -1,10 +1,15 @@
 {
-  "swatches": [
+  "basicSwatches": [
     { "id": "red",    "color": "#D32F2F" },
     { "id": "orange", "color": "#F57C00" },
     { "id": "yellow", "color": "#FBC02D" },
     { "id": "green",  "color": "#388E3C" },
-    { "id": "blue",   "color": "#1976D2" },
-    { "id": "purple", "color": "#7B1FA2" }
-  ]
+    { "id": "blue",   "color": "#1976D2" }
+  ],
+  "wallpaperSwatches": [
+    { "id": "wp_teal",  "color": "#00796B" },
+    { "id": "wp_brown", "color": "#6D4C41" },
+    { "id": "wp_indigo","color": "#3F51B5" }
+  ],
+  "fonts": ["Google Sans Flex", "System", "External"]
 }
