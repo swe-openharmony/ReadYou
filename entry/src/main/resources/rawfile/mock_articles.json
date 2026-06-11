@@ -3,49 +3,33 @@
     {
       "dateLabel": "Sunday, February 1, 2026",
       "rows": [
-        {
-          "id": "r1",
-          "feedName": "ReadYou Releases",
-          "timeText": "1:02 PM",
-          "title": "0.16.1",
-          "excerpt": "What's Changed Fixes Fixed a bug where the first item was incorrectly marked as read, even when no scrolling occurred #1207 Fixed a rare crash when using native renderer with certain feeds #1213 Full Changelog: 0.16.0...0.16.1"
-        }
+        { "id": "r1", "feedName": "ReadYou Releases", "timeText": "1:02 PM", "title": "0.16.1",
+          "read": false, "starred": false,
+          "excerpt": "What's Changed Fixes Fixed a bug where the first item was incorrectly marked as read, even when no scrolling occurred #1207 Fixed a rare crash when using native renderer with certain feeds #1213 Full Changelog: 0.16.0...0.16.1" }
       ]
     },
     {
       "dateLabel": "Sunday, January 25, 2026",
       "rows": [
-        {
-          "id": "r2",
-          "feedName": "ReadYou Releases",
-          "timeText": "5:26 PM",
-          "title": "0.16.0",
-          "excerpt": "What's Changed Breaking Change The app is now signed with a rotated key, see #1219 for more information New Features Scrollbars (!) Google Sans Flex (!!!) Fixes Syncing with Google Reader API won't overwrite remote with local state now fix(ui): improve starred icon visibility in "
-        }
+        { "id": "r2", "feedName": "ReadYou Releases", "timeText": "5:26 PM", "title": "0.16.0",
+          "read": false, "starred": true,
+          "excerpt": "What's Changed Breaking Change The app is now signed with a rotated key, see #1219 for more information New Features Scrollbars (!) Google Sans Flex (!!!) Fixes Syncing with Google Reader API won't overwrite remote with local state now" }
       ]
     },
     {
       "dateLabel": "Sunday, October 26, 2025",
       "rows": [
-        {
-          "id": "r3",
-          "feedName": "ReadYou Releases",
-          "timeText": "10:45 AM",
-          "title": "0.15.3",
-          "excerpt": "What's Changed Fixes Opening widget causes crashes in certain conditions #1176 \"Mark as read on scroll\" offset moves downwards when scrolling past date headers with sticky publication date headers activated #1172 Fixed an issue with importing preferences from json Full Changelog:"
-        }
+        { "id": "r3", "feedName": "ReadYou Releases", "timeText": "10:45 AM", "title": "0.15.3",
+          "read": true, "starred": false,
+          "excerpt": "What's Changed Fixes Opening widget causes crashes in certain conditions #1176 Mark as read on scroll offset moves downwards when scrolling past date headers #1172 Fixed an issue with importing preferences from json" }
       ]
     },
     {
       "dateLabel": "Tuesday, September 2, 2025",
       "rows": [
-        {
-          "id": "r4",
-          "feedName": "ReadYou Releases",
-          "timeText": "8:30 AM",
-          "title": "0.15.2",
-          "excerpt": "Minor bug fixes and translation updates."
-        }
+        { "id": "r4", "feedName": "ReadYou Releases", "timeText": "8:30 AM", "title": "0.15.2",
+          "read": true, "starred": true,
+          "excerpt": "Minor bug fixes and translation updates." }
       ]
     }
   ]
