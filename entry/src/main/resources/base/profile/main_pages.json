@@ -1,0 +1,10 @@
+{
+    "src":  [
+                "pages/Index",
+                "pages/FeedArticlesPage",
+                "pages/AccountsPage",
+                "pages/ColorStylePage",
+                "pages/AddAccountsPage",
+                "pages/AccountDetailPage"
+            ]
+}

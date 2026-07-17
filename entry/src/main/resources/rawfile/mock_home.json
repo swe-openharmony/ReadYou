@@ -1,0 +1,12 @@
+{
+  "unreadCount": 10,
+  "groups": [
+    {
+      "name": "Default",
+      "expanded": true,
+      "feeds": [
+        { "id": "rels", "title": "ReadYou Releases", "unread": 10 }
+      ]
+    }
+  ]
+}
