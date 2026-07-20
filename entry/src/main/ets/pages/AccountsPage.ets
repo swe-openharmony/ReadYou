@@ -43,7 +43,7 @@ struct AccountsPage {
         Text('←').fontSize(22).fontColor('#1F1F1F');
       }.width(40).height(40).backgroundColor(Color.Transparent).accessibilityText('Back')
         .onClick(() => router.back());
-      Text('Accounts').fontSize(20).fontWeight(FontWeight.Medium).fontColor('#1F1F1F').margin({ left: 12 });
+      Text('Accounts').id('accounts_page_signature').fontSize(20).fontWeight(FontWeight.Medium).fontColor('#1F1F1F').margin({ left: 12 });
     }
     .width('100%').height(56).padding({ left: 8 }).alignItems(VerticalAlign.Center).backgroundColor('#FFFFFF');
   }
@@ -61,6 +61,7 @@ struct AccountsPage {
       }.alignItems(HorizontalAlign.Start).layoutWeight(1);
     }
     .width('100%').height(72).alignItems(VerticalAlign.Center).backgroundColor('#FFFFFF')
+    .id(`account_row_${acc.type.toLowerCase().replace(' ', '_')}`)
     .onClick(() => router.pushUrl({ url: 'pages/AccountDetailPage', params: { name: acc.name } }));
   }
 
@@ -73,9 +74,8 @@ struct AccountsPage {
             this.AccountRowView(acc);
           }, (acc: AccountEntry) => acc.id);
 
-          // Neutral placeholder preserves the non-clickable hint row geometry.
-          // The scored account-switch guidance is supplied by the accounts Gold.
-          Text('Account switching guidance').fontSize(13).fontColor('#9AA0A6')
+          // Non-clickable hint (场景一 step 2)
+          Text(HINT).fontSize(13).fontColor('#9AA0A6')
             .width('100%').padding({ left: 24, right: 24, top: 16, bottom: 16 });
 
           // "Add accounts" entry (场景一 step 3)
@@ -86,7 +86,7 @@ struct AccountsPage {
             }.alignItems(HorizontalAlign.Start).layoutWeight(1).margin({ left: 24 });
           }
           .width('100%').height(72).alignItems(VerticalAlign.Center).backgroundColor('#FFFFFF')
-          .onClick(() => router.pushUrl({ url: 'pages/AddAccountsPage' }));
+          .id('add_accounts_action').onClick(() => router.pushUrl({ url: 'pages/AddAccountsPage' }));
         }.width('100%');
       }.layoutWeight(1).width('100%');
     }

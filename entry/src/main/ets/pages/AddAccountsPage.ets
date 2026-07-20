@@ -34,7 +34,8 @@ struct AddAccountsPage {
   @State private dialogLocal: boolean = false;
   @State private nameText: string = '';
   @State private serverText: string = '';
-  @State private credText: string = '';
+  @State private usernameText: string = '';
+  @State private passwordText: string = '';
   @State private errorMsg: string = '';
 
   aboutToAppear(): void {
@@ -53,28 +54,40 @@ struct AddAccountsPage {
     this.dialogId = row.id;
     this.dialogLabel = row.label;
     this.dialogLocal = row.id === 'local';
-    this.nameText = '';
+    this.nameText = row.id === 'local' ? '' : row.label;
     this.serverText = '';
-    this.credText = '';
+    this.usernameText = '';
+    this.passwordText = '';
     this.errorMsg = '';
     this.dialogOpen = true;
   }
 
   private async confirm(): Promise<void> {
-    if (this.nameText.trim().length === 0) {
+    if (this.dialogLocal && this.nameText.trim().length === 0) {
       this.errorMsg = 'Name is required';
       return;
     }
     if (!this.dialogLocal) {
-      if (this.serverText.trim().length === 0 || this.credText.trim().length === 0) {
-        this.errorMsg = 'Server and credentials are required';
+      if (this.serverText.trim().length === 0 || this.usernameText.length === 0 || this.passwordText.length === 0) {
+        this.errorMsg = 'Server URL, username, and password are required';
         return;
       }
-      // (self-hosted) credential check would run here; mock treats filled as valid.
+      // Frozen Android validates ClientLogin, obtains a Google Reader token,
+      // then performs a one-time sync before retaining the account. Until that
+      // protocol is implemented, reject rather than fabricate credential success.
+      this.errorMsg = 'Not valid credentials';
+      return;
     }
-    // Base delivers validation and confirmation but deliberately does not
-    // persist an account or navigate to the detail outcome.
-    this.errorMsg = 'Account creation is not implemented';
+    const entry: AccountEntry = {
+      id: `${this.dialogId}_${Date.now()}`,
+      name: this.dialogLocal ? this.nameText.trim() : this.dialogLabel,
+      type: this.dialogLocal ? 'Local' : this.dialogLabel,
+      serverUrl: this.serverText.trim(),
+      username: this.usernameText,
+    };
+    await AccountsStore.add(this, entry);
+    this.dialogOpen = false;
+    router.pushUrl({ url: 'pages/AccountDetailPage', params: { name: entry.name } });
   }
 
   @Builder
@@ -96,6 +109,7 @@ struct AddAccountsPage {
       }.alignItems(HorizontalAlign.Start).layoutWeight(1).margin({ left: 24 });
     }
     .width('100%').height(64).alignItems(VerticalAlign.Center).backgroundColor('#FFFFFF')
+    .id(`add_account_${row.id}`)
     .onClick(() => this.openDialog(row));
   }
 
@@ -105,7 +119,7 @@ struct AddAccountsPage {
         this.TopBar();
         Scroll() {
           Column() {
-            Text('Add accounts').fontSize(28).fontWeight(FontWeight.Medium).fontColor('#1F1F1F')
+            Text('Add accounts').id('add_accounts_page_signature').fontSize(28).fontWeight(FontWeight.Medium).fontColor('#1F1F1F')
               .width('100%').padding({ left: 24, right: 24, top: 8, bottom: 16 });
             ForEach(this.sections, (sec: AddSection) => {
               // Group title — not clickable (场景二 step 4)
@@ -122,21 +136,29 @@ struct AddAccountsPage {
       if (this.dialogOpen) {
         Column() {
           Text(`Add ${this.dialogLabel}`).fontSize(18).fontWeight(FontWeight.Bold).fontColor('#1F1F1F').padding(16);
-          TextInput({ placeholder: 'Name', text: this.nameText })
-            .margin({ left: 16, right: 16, bottom: 8 }).onChange((v: string) => { this.nameText = v; });
-          if (!this.dialogLocal) {
-            TextInput({ placeholder: 'Server address', text: this.serverText })
-              .margin({ left: 16, right: 16, bottom: 8 }).onChange((v: string) => { this.serverText = v; });
-            TextInput({ placeholder: 'Credentials', text: this.credText })
-              .margin({ left: 16, right: 16, bottom: 8 }).onChange((v: string) => { this.credText = v; });
+          if (this.dialogLocal) {
+            TextInput({ placeholder: 'Name', text: this.nameText })
+              .id('account_local_name').margin({ left: 16, right: 16, bottom: 8 })
+              .onChange((v: string) => { this.nameText = v; });
+          } else {
+            TextInput({ placeholder: 'Server URL', text: this.serverText })
+              .id('account_server_url').margin({ left: 16, right: 16, bottom: 8 })
+              .onChange((v: string) => { this.serverText = v; });
+            TextInput({ placeholder: 'Username', text: this.usernameText })
+              .id('account_username').margin({ left: 16, right: 16, bottom: 8 })
+              .onChange((v: string) => { this.usernameText = v; });
+            TextInput({ placeholder: 'Password', text: this.passwordText })
+              .id('account_password').type(InputType.Password).margin({ left: 16, right: 16, bottom: 8 })
+              .onChange((v: string) => { this.passwordText = v; });
           }
           if (this.errorMsg.length > 0) {
             Text(this.errorMsg).fontSize(13).fontColor('#D32F2F').padding({ left: 16, right: 16, bottom: 8 });
           }
           Row() {
             Text('Cancel').fontSize(15).fontColor('#1976D2').padding(16)
-              .onClick(() => { this.dialogOpen = false; });
-            Text('Confirm').fontSize(15).fontColor('#1976D2').padding(16)
+              .id('account_dialog_cancel').onClick(() => { this.dialogOpen = false; });
+            Text('Add').fontSize(15).fontColor('#1976D2').padding(16)
+              .id('account_dialog_add')
               .onClick(() => this.confirm());
           }.justifyContent(FlexAlign.End).width('100%');
         }

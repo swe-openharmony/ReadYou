@@ -13,7 +13,7 @@
       "rows": [
         { "id": "freshrss", "label": "FreshRSS",      "subtitle": "freshrss.org",                "iconSeed": "F" },
         { "id": "greader",  "label": "Google Reader", "subtitle": "Google Reader API",           "iconSeed": "G" },
-        { "id": "fever",    "label": "Self-hosted protocol", "subtitle": "Deprecated. Not recommended.", "iconSeed": "V" }
+        { "id": "fever",    "label": "Fever",         "subtitle": "Deprecated. Not recommended.", "iconSeed": "V" }
       ]
     }
   ]

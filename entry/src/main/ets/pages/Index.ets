@@ -77,7 +77,7 @@ struct Index {
   private TopActions() {
     Row() {
       Text('⚙').fontSize(22).fontColor('#1F1F1F').width(48).height(48).textAlign(TextAlign.Center)
-        .accessibilityText('Accounts and settings')
+        .id('accounts_settings_action').accessibilityText('Accounts and settings')
         .onClick(() => {
           hilog.info(0x0000, TAG, 'gear → AccountsPage');
           router.pushUrl({ url: 'pages/AccountsPage' });

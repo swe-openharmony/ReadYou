@@ -10,6 +10,8 @@ export interface AccountEntry {
   id: string;
   name: string;
   type: string;
+  serverUrl: string;
+  username: string;
 }
 
 interface AccountsData {
@@ -24,7 +26,9 @@ export class AccountsStore {
       return (JSON.parse(j) as AccountsData).accounts;
     }
     // First launch auto-creates a local account (spec 场景一 step 4).
-    const def: AccountEntry = { id: 'local_default', name: 'Local', type: 'Local account' };
+    const def: AccountEntry = {
+      id: 'local_default', name: 'Read You', type: 'Local', serverUrl: '', username: '',
+    };
     return [def];
   }
 
