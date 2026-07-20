@@ -10,6 +10,7 @@ interface FeedRow {
   id: string;
   title: string;
   unread: number;
+  browser?: boolean;
 }
 
 interface FeedGroup {
@@ -45,14 +46,18 @@ struct Index {
       hilog.error(0x0000, TAG, 'load failed: %{public}s', String(e));
       this.groups = [{
         name: 'Default', expanded: true,
-        feeds: [{ id: 'rels', title: 'ReadYou Releases', unread: 10 }],
+        feeds: [{ id: 'rels', title: 'ReadYou Releases', unread: 10, browser: false }],
       }];
     }
   }
 
   private openFeed(feed: FeedRow): void {
     hilog.info(0x0000, TAG, 'open feed → FeedArticlesPage id=%{public}s', feed.id);
-    router.pushUrl({ url: 'pages/FeedArticlesPage', params: { feedId: feed.id, feedTitle: feed.title } });
+    const params: Record<string, string> = {};
+    params.feedId = feed.id;
+    params.feedTitle = feed.title;
+    params.browserFeed = feed.browser ? 'true' : 'false';
+    router.pushUrl({ url: 'pages/FeedArticlesPage', params: params });
   }
 
   private openUnreadFilter(): void {
@@ -77,14 +82,14 @@ struct Index {
   private TopActions() {
     Row() {
       Text('⚙').fontSize(22).fontColor('#1F1F1F').width(48).height(48).textAlign(TextAlign.Center)
-        .accessibilityText('Accounts and settings')
+        .id('accounts_settings_action').accessibilityText('Accounts and settings')
         .onClick(() => {
           hilog.info(0x0000, TAG, 'gear → AccountsPage');
           router.pushUrl({ url: 'pages/AccountsPage' });
         });
       Blank().layoutWeight(1);
       Text('＋').fontSize(22).fontColor('#1F1F1F').width(48).height(48).textAlign(TextAlign.Center)
-        .accessibilityText('Personalize colors')
+        .id('personalize_colors_action').accessibilityText('Personalize colors')
         .onClick(() => {
           hilog.info(0x0000, TAG, 'add → ColorStylePage');
           router.pushUrl({ url: 'pages/ColorStylePage' });

@@ -5,7 +5,8 @@
       "name": "Default",
       "expanded": true,
       "feeds": [
-        { "id": "rels", "title": "ReadYou Releases", "unread": 10 }
+        { "id": "rels", "title": "ReadYou Releases", "unread": 10, "browser": false },
+        { "id": "browser_rels", "title": "Browser Releases", "unread": 2, "browser": true }
       ]
     }
   ]
