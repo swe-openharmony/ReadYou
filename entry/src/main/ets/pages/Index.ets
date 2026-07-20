@@ -84,7 +84,7 @@ struct Index {
         });
       Blank().layoutWeight(1);
       Text('＋').fontSize(22).fontColor('#1F1F1F').width(48).height(48).textAlign(TextAlign.Center)
-        .accessibilityText('Personalize colors')
+        .id('personalize_colors_action').accessibilityText('Personalize colors')
         .onClick(() => {
           hilog.info(0x0000, TAG, 'add → ColorStylePage');
           router.pushUrl({ url: 'pages/ColorStylePage' });

@@ -11,5 +11,5 @@
     { "id": "wp_brown", "color": "#6D4C41" },
     { "id": "wp_indigo","color": "#3F51B5" }
   ],
-  "fonts": ["Google Sans Flex", "System", "External"]
+  "fonts": ["Google Sans Flex", "System", "External fonts"]
 }

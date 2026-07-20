@@ -24,12 +24,14 @@ struct ColorStylePage {
   @State private mode: ColorMode = 'basic';
   @State private basicSwatches: Swatch[] = [];
   @State private wallpaperSwatches: Swatch[] = [];
-  @State private fonts: string[] = ['Google Sans Flex', 'System', 'External'];
+  @State private fonts: string[] = ['Google Sans Flex', 'System', 'External fonts'];
   @State private accent: string = '#1976D2';
   @State private darkMode: string = 'system';   // system | on | off
-  @State private font: string = 'Default font';
+  @State private font: string = 'Google Sans Flex';
 
   @State private fontDialogOpen: boolean = false;
+  @State private darkDetailOpen: boolean = false;
+  @State private blackDark: boolean = false;
   @State private hexDialogOpen: boolean = false;
   @State private hexText: string = '';
   @State private hexError: string = '';
@@ -49,10 +51,10 @@ struct ColorStylePage {
       this.wallpaperSwatches = data.wallpaperSwatches;
       if (data.fonts && data.fonts.length > 0) { this.fonts = data.fonts; }
       const s = await this.store();
-      this.mode = (await s.get('mode', 'wallpaper') as string) as ColorMode;
+      this.mode = (await s.get('mode', 'basic') as string) as ColorMode;
       this.accent = await s.get('accent', '#1976D2') as string;
       this.darkMode = await s.get('dark', 'system') as string;
-      this.font = await s.get('font', 'Default font') as string;
+      this.font = await s.get('font', 'Google Sans Flex') as string;
     } catch (e) {
       hilog.error(0x0000, TAG, 'load failed: %{public}s', String(e));
     }
@@ -77,12 +79,20 @@ struct ColorStylePage {
     return 'Use device theme';
   }
 
-  private cycleDark(): void {
-    // Base accepts the action but leaves the setting unchanged.
+  private selectDark(mode: string): void {
+    this.darkMode = mode;
+    this.persist();
   }
 
-  private pickSwatch(_s: Swatch): void {
-    // Base accepts the action but leaves the accent unchanged.
+  private pickSwatch(s: Swatch, index: number): void {
+    if (this.mode === 'basic' && index === this.basicSwatches.length - 1) {
+      this.hexText = this.accent.startsWith('#') ? this.accent.substring(1) : this.accent;
+      this.hexError = '';
+      this.hexDialogOpen = true;
+      return;
+    }
+    this.accent = s.color;
+    this.persist();
   }
 
   private isHex6(v: string): boolean {
@@ -100,13 +110,16 @@ struct ColorStylePage {
       this.hexError = 'Enter 6 hex digits (e.g. 666666)';
       return;
     }
-    // Base accepts a valid value but does not apply or close it.
-    this.hexError = 'Color application is not implemented';
+    this.accent = `#${this.hexText.toUpperCase()}`;
+    this.mode = 'basic';
+    this.hexDialogOpen = false;
+    this.persist();
   }
 
-  private pickFont(_f: string): void {
-    // Base delivers the selection and closes the dialog without applying it.
+  private pickFont(f: string): void {
+    this.font = f;
     this.fontDialogOpen = false;
+    this.persist();
   }
 
   @Builder
@@ -130,7 +143,7 @@ struct ColorStylePage {
 
         Scroll() {
           Column() {
-            Text('Color & style').fontSize(28).fontWeight(FontWeight.Medium).fontColor('#1F1F1F')
+            Text('Color & style').id('color_style_page_signature').fontSize(28).fontWeight(FontWeight.Medium).fontColor('#1F1F1F')
               .width('100%').padding({ left: 24, right: 24, top: 8, bottom: 8 });
 
             // Preview card + current accent hex (the hex doubles as a test signal).
@@ -148,19 +161,16 @@ struct ColorStylePage {
             // Swatch row — each carries its hex caption so it is findable/tappable.
             Scroll() {
               Row() {
-                ForEach(this.currentSwatches(), (s: Swatch) => {
+                ForEach(this.currentSwatches(), (s: Swatch, index: number) => {
                   Column() {
                     Column().width(44).height(44).borderRadius(22).backgroundColor(s.color)
                       .borderColor(this.accent === s.color ? '#1F1F1F' : Color.Transparent)
                       .borderWidth(this.accent === s.color ? 3 : 0);
                     Text(s.color).fontSize(10).fontColor('#888888').margin({ top: 2 });
-                  }.padding(8)
-                    .gesture(GestureGroup(GestureMode.Parallel,
-                      TapGesture().onAction(() => this.pickSwatch(s)),
-                      LongPressGesture({ repeat: false }).onAction(() => {
-                        if (this.mode === 'basic') { this.hexText = ''; this.hexError = ''; this.hexDialogOpen = true; }
-                      })
-                    ));
+                  }.padding(8).id(this.mode === 'basic' ? `basic_palette_${index + 1}` : `wallpaper_palette_${index + 1}`)
+                    .accessibilityText(this.mode === 'basic' && index === this.basicSwatches.length - 1 ?
+                      'Custom basic palette' : `${this.mode} palette ${index + 1}`)
+                    .onClick(() => this.pickSwatch(s, index));
                 }, (s: Swatch) => s.id);
               }.padding({ left: 16, right: 16 });
             }.scrollable(ScrollDirection.Horizontal).width('100%').height(80);
@@ -176,7 +186,7 @@ struct ColorStylePage {
               }.alignItems(HorizontalAlign.Start).layoutWeight(1);
               Toggle({ type: ToggleType.Switch, isOn: this.darkMode === 'on' }).hitTestBehavior(HitTestMode.None);
             }.width('100%').padding({ left: 24, right: 24, top: 12, bottom: 12 }).alignItems(VerticalAlign.Center)
-              .onClick(() => this.cycleDark());
+              .id('dark_theme_action').onClick(() => { this.darkDetailOpen = true; });
 
             // Basic fonts row → font dialog (场景四)
             Row() {
@@ -185,10 +195,32 @@ struct ColorStylePage {
                 Text(this.font).fontSize(13).fontColor('#666666').margin({ top: 2 });
               }.alignItems(HorizontalAlign.Start).layoutWeight(1);
             }.width('100%').padding({ left: 24, right: 24, top: 12, bottom: 12 }).alignItems(VerticalAlign.Center)
-              .onClick(() => { this.fontDialogOpen = true; });
+              .id('basic_fonts_action').onClick(() => { this.fontDialogOpen = true; });
           }.width('100%');
         }.layoutWeight(1).width('100%');
       }.width('100%').height('100%').backgroundColor('#FFFFFF');
+
+      if (this.darkDetailOpen) {
+        Column() {
+          Row() {
+            Text('←').id('dark_detail_back').fontSize(22).fontColor('#1F1F1F').padding(16)
+              .onClick(() => { this.darkDetailOpen = false; });
+            Text('Dark theme').fontSize(20).fontWeight(FontWeight.Medium).fontColor('#1F1F1F');
+          }.width('100%').alignItems(VerticalAlign.Center);
+          ForEach(['Use device theme', 'On', 'Off'], (label: string) => {
+            Row() {
+              Text(label).fontSize(16).fontColor('#1F1F1F').layoutWeight(1);
+              if (this.darkDesc() === label) { Text('✓').fontSize(16).fontColor('#1976D2'); }
+            }.width('100%').padding({ left: 24, right: 24, top: 16, bottom: 16 })
+              .id(`dark_mode_${label === 'Use device theme' ? 'system' : label.toLowerCase()}`)
+              .onClick(() => this.selectDark(label === 'Use device theme' ? 'system' : label.toLowerCase()));
+          }, (label: string) => label);
+          Row() {
+            Text('Black dark theme').fontSize(16).fontColor('#1F1F1F').layoutWeight(1);
+            Toggle({ type: ToggleType.Switch, isOn: this.blackDark }).onChange((v: boolean) => { this.blackDark = v; });
+          }.width('100%').padding({ left: 24, right: 24, top: 16, bottom: 16 });
+        }.width('100%').height('100%').backgroundColor('#FFFFFF');
+      }
 
       if (this.fontDialogOpen) {
         Column() {
@@ -207,17 +239,17 @@ struct ColorStylePage {
 
       if (this.hexDialogOpen) {
         Column() {
-          Text('Custom color').fontSize(18).fontWeight(FontWeight.Bold).fontColor('#1F1F1F').padding(16);
-          TextInput({ placeholder: 'Hex e.g. 666666', text: this.hexText })
+          Text('Primary color').id('primary_color_dialog').fontSize(18).fontWeight(FontWeight.Bold).fontColor('#1F1F1F').padding(16);
+          TextInput({ placeholder: 'Primary color e.g. 666666', text: this.hexText }).id('primary_color_input')
             .margin({ left: 16, right: 16, bottom: 8 }).onChange((v: string) => { this.hexText = v; });
           if (this.hexError.length > 0) {
             Text(this.hexError).fontSize(13).fontColor('#D32F2F').padding({ left: 16, right: 16, bottom: 8 });
           }
           Row() {
             Text('Cancel').fontSize(15).fontColor('#1976D2').padding(16)
-              .onClick(() => { this.hexDialogOpen = false; });
+              .id('primary_color_cancel').onClick(() => { this.hexDialogOpen = false; });
             Text('Confirm').fontSize(15).fontColor('#1976D2').padding(16)
-              .onClick(() => this.confirmHex());
+              .id('primary_color_confirm').onClick(() => this.confirmHex());
           }.justifyContent(FlexAlign.End).width('100%');
         }.width(320).backgroundColor('#FFFFFF').borderRadius(12).shadow({ radius: 12, color: '#40000000' });
       }
