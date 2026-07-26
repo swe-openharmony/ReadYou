@@ -1,7 +1,7 @@
 import UIAbility from '@ohos.app.ability.UIAbility';
 import hilog from '@ohos.hilog';
 import window from '@ohos.window';
-import { AbilityConstant, Want } from '@kit.AbilityKit';
+import { AbilityConstant, Configuration, Want } from '@kit.AbilityKit';
 
 export default class EntryAbility extends UIAbility {
   // Active page; can be overridden via `aa start ... --ps targetPage <PageName>`.
@@ -24,7 +24,12 @@ export default class EntryAbility extends UIAbility {
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+    AppStorage.setOrCreate<number>('systemColorMode', this.context.config.colorMode);
     this.applyTargetFromWant(want);
+  }
+
+  onConfigurationUpdate(newConfig: Configuration): void {
+    AppStorage.setOrCreate<number>('systemColorMode', newConfig.colorMode);
   }
 
   onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
