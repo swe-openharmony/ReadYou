@@ -2,7 +2,11 @@
 
 import { router } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { common, Want } from '@kit.AbilityKit';
+import { preferences } from '@kit.ArkData';
 import { MockDataSource } from '../common/MockDataSource';
+
+const SWIPE_STORE = 'readyou_article_list';
 
 const TAG = 'FeedArticlesPage';
 
@@ -12,6 +16,8 @@ interface ArticleRow {
   timeText: string;
   title: string;
   excerpt: string;
+  link: string;
+  ageDays: number;
   read: boolean;
   starred: boolean;
 }
@@ -38,11 +44,26 @@ struct FeedArticlesPage {
   @State private contextOpen: boolean = false;
   @State private contextId: string = '';
   @State private feedTitle: string = 'Feed';
+  @State private browserFeed: boolean = false;
+  @State private browserOpenedTitle: string = '';
+  @State private swipeLeft: string = 'Toggle starred';
+  @State private swipeRight: string = 'Toggle read';
+  private listScroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
     const p = router.getParams() as Record<string, string> | undefined;
     if (p && p.feedTitle) { this.feedTitle = p.feedTitle; }
+    if (p && p.browserFeed === 'true') { this.browserFeed = true; }
     this.loadGroups();
+    this.loadSwipeSettings();
+  }
+
+  private async loadSwipeSettings(): Promise<void> {
+    const store = await preferences.getPreferences(
+      getContext(this) as common.UIAbilityContext, { name: SWIPE_STORE },
+    );
+    this.swipeLeft = await store.get('swipeLeft', 'Toggle starred') as string;
+    this.swipeRight = await store.get('swipeRight', 'Toggle read') as string;
   }
 
   private async loadGroups(): Promise<void> {
@@ -100,13 +121,21 @@ struct FeedArticlesPage {
     return ids;
   }
 
-  private toggleRead(_id: string): void {
-    // Base delivers the action without changing article business state.
+  private toggleRead(id: string): void {
+    if (this.readIds.includes(id)) {
+      this.readIds = this.readIds.filter((x: string) => x !== id);
+    } else {
+      this.readIds = this.readIds.concat([id]);
+    }
     this.contextOpen = false;
   }
 
-  private toggleStar(_id: string): void {
-    // Base delivers the action without changing article business state.
+  private toggleStar(id: string): void {
+    if (this.starredIds.includes(id)) {
+      this.starredIds = this.starredIds.filter((x: string) => x !== id);
+    } else {
+      this.starredIds = this.starredIds.concat([id]);
+    }
     this.contextOpen = false;
   }
 
@@ -121,21 +150,74 @@ struct FeedArticlesPage {
     this.contextOpen = false;
   }
 
-  private markAllInRange(): void {
-    // Base accepts the command and closes the shell without marking articles.
+  private markAllInRange(maxAgeDays: number): void {
+    let next = this.readIds.slice();
+    for (const group of this.allGroups) {
+      for (const row of group.rows) {
+        if (maxAgeDays === 0 || row.ageDays >= maxAgeDays) {
+          if (!next.includes(row.id)) { next = next.concat([row.id]); }
+        }
+      }
+    }
+    this.readIds = next;
     this.batchBarOpen = false;
   }
 
-  private onArticleTap(_row: ArticleRow): void {
-    // Base delivers the tap but intentionally does not open the reader.
+  private openExternal(row: ArticleRow): void {
+    const ctx = getContext(this) as common.UIAbilityContext;
+    const want: Want = { action: 'ohos.want.action.viewData', uri: row.link };
+    this.browserOpenedTitle = row.title;
+    ctx.startAbility(want).catch((e: Object) => {
+      hilog.error(0x0000, TAG, 'open browser failed: %{public}s', String(e));
+    });
+  }
+
+  private onArticleTap(row: ArticleRow): void {
+    if (!this.readIds.includes(row.id)) { this.readIds = this.readIds.concat([row.id]); }
+    if (this.browserFeed) {
+      this.openExternal(row);
+      return;
+    }
+    router.pushUrl({ url: 'pages/ReaderPage', params: { title: row.title, content: row.excerpt } });
+  }
+
+  private applySwipeAction(row: ArticleRow, action: string): void {
+    if (action === 'Toggle read') {
+      this.toggleRead(row.id);
+    } else if (action === 'Toggle starred') {
+      this.toggleStar(row.id);
+    }
   }
 
   private onSwipe(row: ArticleRow, offsetX: number): void {
     if (offsetX < -80) {
-      this.toggleRead(row.id);     // swipe left → toggle read
+      this.applySwipeAction(row, this.swipeLeft);
     } else if (offsetX > 80) {
-      this.toggleStar(row.id);     // swipe right → toggle starred
+      this.applySwipeAction(row, this.swipeRight);
     }
+  }
+
+  private selectFilter(tab: FilterTab): void {
+    this.batchBarOpen = false;
+    if (this.filter === tab) {
+      this.listScroller.scrollToIndex(0);
+      return;
+    }
+    this.filter = tab;
+    this.listScroller.scrollToIndex(0);
+  }
+
+  private rangeDays(label: string): number {
+    if (label === '7 Days') { return 7; }
+    if (label === '3 Days') { return 3; }
+    if (label === '1 Day') { return 1; }
+    return 0;
+  }
+
+  onBackPress(): boolean {
+    if (this.contextOpen) { this.contextOpen = false; return true; }
+    if (this.batchBarOpen) { this.batchBarOpen = false; return true; }
+    return false;
   }
 
   @Builder
@@ -153,7 +235,11 @@ struct FeedArticlesPage {
         Button({ type: ButtonType.Circle, stateEffect: true }) {
           Text('✓').fontSize(20).fontColor('#1F1F1F');
         }.width(40).height(40).backgroundColor(Color.Transparent).accessibilityText('Mark all as read')
-          .onClick(() => { this.batchBarOpen = !this.batchBarOpen; });
+          .id('mark_all_action').onClick(() => {
+            this.contextOpen = false;
+            this.batchBarOpen = !this.batchBarOpen;
+            if (this.batchBarOpen) { this.listScroller.scrollToIndex(0); }
+          });
       }
       Button({ type: ButtonType.Circle, stateEffect: true }) {
         Text('\u{1F50D}').fontSize(18).fontColor('#1F1F1F');
@@ -168,7 +254,8 @@ struct FeedArticlesPage {
       ForEach(['7 Days', '3 Days', '1 Day', 'Mark All as Read'], (label: string) => {
         Text(label).fontSize(13).fontColor('#1976D2')
           .padding({ left: 12, right: 12, top: 8, bottom: 8 })
-          .onClick(() => this.markAllInRange());
+          .id(`mark_range_${this.rangeDays(label)}`)
+          .onClick(() => this.markAllInRange(this.rangeDays(label)));
       }, (label: string) => label);
     }
     .width('100%').justifyContent(FlexAlign.SpaceAround).alignItems(VerticalAlign.Center)
@@ -195,7 +282,7 @@ struct FeedArticlesPage {
           Text(row.timeText).fontSize(13).fontColor('#888888').margin({ left: 8 });
         }.width('100%').margin({ bottom: 8 });
 
-        Text(row.title).fontSize(18)
+        Text(row.title).id(`article_${row.id}`).accessibilityText(`${row.title} ${this.isRead(row.id) ? 'read' : 'unread'} ${this.isStarred(row.id) ? 'starred' : 'not starred'}`).fontSize(18)
           .fontWeight(this.isRead(row.id) ? FontWeight.Regular : FontWeight.Medium)
           .fontColor(this.isRead(row.id) ? '#9AA0A6' : '#1F1F1F')
           .maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis });
@@ -223,19 +310,23 @@ struct FeedArticlesPage {
     }
     .padding({ left: 16, right: 16, top: 8, bottom: 8 }).borderRadius(20)
     .backgroundColor(this.filter === tab ? '#1976D2' : Color.Transparent)
-    .onClick(() => { this.filter = tab; this.batchBarOpen = false; });
+    .id(`filter_${tab}`).accessibilityText(`${label} filter ${this.filter === tab ? 'selected' : 'not selected'}`)
+    .onClick(() => this.selectFilter(tab));
   }
 
   build() {
     Stack({ alignContent: Alignment.Center }) {
       Column() {
         this.TopBar();
-        if (this.batchBarOpen) { this.BatchBar(); }
 
-        List() {
+        List({ scroller: this.listScroller }) {
+          if (this.batchBarOpen) {
+            ListItem() { this.BatchBar(); }
+          }
           ListItem() {
             Column() {
-              Text(this.headline()).fontSize(36).fontWeight(FontWeight.Bold).fontColor('#1F1F1F');
+              Text(this.headline()).fontSize(36).fontWeight(FontWeight.Bold).fontColor('#1F1F1F')
+                .id('feed_page_signature');
             }.width('100%').padding({ left: 24, right: 24, top: 8, bottom: 24 }).alignItems(HorizontalAlign.Start);
           }
           ForEach(this.displayGroups(), (g: ArticleGroup) => {
@@ -245,7 +336,12 @@ struct FeedArticlesPage {
             }, (row: ArticleRow) => row.id);
           }, (g: ArticleGroup) => g.dateLabel);
         }
-        .layoutWeight(1).width('100%').divider({ strokeWidth: 0.5, color: '#EEEEEE', startMargin: 24, endMargin: 24 });
+        .layoutWeight(1).width('100%').divider({ strokeWidth: 0.5, color: '#EEEEEE', startMargin: 24, endMargin: 24 })
+        .onTouch((event: TouchEvent) => {
+          if (this.batchBarOpen && event.type === TouchType.Move) {
+            this.batchBarOpen = false;
+          }
+        });
 
         Row() {
           this.FilterChip('starred', '★', 'Starred');
@@ -261,11 +357,20 @@ struct FeedArticlesPage {
         Column() {
           this.CtxItem('Toggle read', () => this.toggleRead(this.contextId));
           this.CtxItem('Toggle starred', () => this.toggleStar(this.contextId));
-          this.CtxItem('Mark above as read', () => this.markAboveBelow(this.contextId, true));
-          this.CtxItem('Mark below as read', () => this.markAboveBelow(this.contextId, false));
+          if (this.flatIds().indexOf(this.contextId) > 0) {
+            this.CtxItem('Mark above as read', () => this.markAboveBelow(this.contextId, true));
+          }
+          if (this.flatIds().indexOf(this.contextId) < this.flatIds().length - 1) {
+            this.CtxItem('Mark below as read', () => this.markAboveBelow(this.contextId, false));
+          }
           this.CtxItem('Share', () => { this.contextOpen = false; });
         }
-        .width(260).backgroundColor('#FFFFFF').borderRadius(8).shadow({ radius: 8, color: '#40000000' });
+        .id('article_context_menu').width(260).backgroundColor('#FFFFFF').borderRadius(8)
+        .shadow({ radius: 8, color: '#40000000' });
+      }
+      if (this.browserOpenedTitle.length > 0) {
+        Text(`Opened in browser: ${this.browserOpenedTitle}`).id('browser_open_signal')
+          .fontSize(12).fontColor('#666666').position({ x: 8, y: 8 });
       }
     }
     .width('100%').height('100%');

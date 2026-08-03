@@ -5,6 +5,10 @@
                 "pages/AccountsPage",
                 "pages/ColorStylePage",
                 "pages/AddAccountsPage",
-                "pages/AccountDetailPage"
+                "pages/AccountDetailPage",
+                "pages/ReaderPage",
+                "pages/SettingsPage",
+                "pages/UsageSettingsPage",
+                "pages/ArticleListSettingsPage"
             ]
 }
